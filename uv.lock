@@ -40,7 +40,7 @@ wheels = [
 ]
 
 [[package]]
-name = "backend"
+name = "backend-POC"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

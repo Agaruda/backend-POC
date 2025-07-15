@@ -1,5 +1,5 @@
 [project]
-name = "backend"
+name = "backend-POC"
 version = "0.1.0"
 description = "Agaruda Backend API"
 readme = "README.md"
