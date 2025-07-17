@@ -10,6 +10,9 @@ jobs:
   python-build:
     name: Python FastAPI Build
     runs-on: ubuntu-latest
+    strategy:
+        matrix:
+          service: [python, docker]
     env:
       IMAGE_TAG: ci-${{ github.run_number }}
     
@@ -21,6 +24,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+      - if: matrix.service == 'python'
+        run: |
+            uv venv create
+            uv venv activate
+            uv pip install
+            uv pip freeze > uv.lock
 
       - name: Install uv
         run: |
@@ -48,13 +57,7 @@ jobs:
           echo "FastAPI app can be started with uvicorn"
 
       - name: Build Docker image
-        run: |
-          docker build -t python-ci-image:local .
-          docker build -t python-ci-image:${IMAGE_TAG} -f Dockerfile .
-
-      - name: Run Docker container
-        run: |
-          docker run -d -p 8080:8080 python-ci-image:local
+        uses: docker/setup-buildx-action@v2
 
       - name: Build summary
         run: |
