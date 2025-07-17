@@ -20,17 +20,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - if: matrix.service == 'python'
-        run: |
-            uv venv create
-            uv venv activate
-            uv pip install
-            uv pip freeze > uv.lock
-
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -51,6 +40,17 @@ jobs:
           uv sync --dev
           uv pip list
 
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - if: matrix.service == 'python'
+        run: |
+            uv venv create
+            uv venv activate
+            uv pip install
+            uv pip freeze > uv.lock
+          
       - name: Test uvicorn startup (dry run)
         run: |
           timeout 10s uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 || true
