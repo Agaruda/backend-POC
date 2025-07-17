@@ -5,10 +5,12 @@ build/
 dist/
 wheels/
 *.egg-info
+.env
 
 # Virtual environments
 .venv
+.envrc
 .DS_Store
-
-
-
+.Python
+*.log
+*.sqlite3

@@ -1,0 +1,11 @@
+version: '3.11'
+
+services:
+  app:
+    image: python-ci-image:${IMAGE_TAG:-ci-latest} 
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    environment:
+      - ENV=production
+    restart: unless-stopped
