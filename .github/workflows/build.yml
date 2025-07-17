@@ -10,9 +10,6 @@ jobs:
   python-build:
     name: Python FastAPI Build
     runs-on: ubuntu-latest
-    strategy:
-        matrix:
-          service: [python, docker]
     env:
       IMAGE_TAG: ci-${{ github.run_number }}
     
@@ -44,12 +41,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - if: matrix.service == 'python'
-        run: |
-            uv venv create
-            uv venv activate
-            uv pip install
-            uv pip freeze > uv.lock
           
       - name: Test uvicorn startup (dry run)
         run: |
