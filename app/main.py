@@ -9,3 +9,7 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
+
+@app.get("/test")
+async def test():
+    return {"message": "Hello from Agaruda Backend!"}
