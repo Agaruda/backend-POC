@@ -66,12 +66,16 @@ jobs:
         with:
           config: .licenserc.yaml
 
-      - name: Run Licensee
+      - name: Simple License Check
         run: |
-          gem install licensee
-          licensee detect --json > license-results.json
-          echo "License check completed"
-          cat license-results.json
+          echo "Checking for LICENSE file..."
+          if [ -f "LICENSE" ]; then
+            echo "LICENSE file found"
+            head -5 LICENSE
+          else
+            echo "No LICENSE file found"
+            exit 1
+          fi
 
   security-summary:
     name: Security Summary
