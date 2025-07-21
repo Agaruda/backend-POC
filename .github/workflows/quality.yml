@@ -1,0 +1,69 @@
+name: Quality Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-3.11-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-3.11-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+
+      - name: Install dependencies
+        run: |
+          uv sync --dev
+          echo "Installed packages:"
+          uv pip list
+          echo "Checking if black is available:"
+          uv run which black || echo "black not found"
+          echo "Installing dev dependencies explicitly:"
+          uv add --dev black flake8 ruff mypy
+
+      # Black formatter
+      - name: Black format check
+        run: |
+          uv add --dev black
+          uv run black --check .
+
+      # Flake8 linter
+      - name: Flake8 lint check
+        run: |
+          uv add --dev flake8
+          uv run flake8 . --exclude .venv
+
+      # Ruff linter
+      - name: Ruff lint check
+        run: |
+          uv add --dev ruff
+          uv run ruff check .
+
+      # Mypy type-check (non-blocking)
+      - name: Mypy type-check
+        run: |
+          uv add --dev mypy
+          uv run mypy . || echo "Mypy found type issues (non-blocking)"
