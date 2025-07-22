@@ -18,9 +18,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Prepare build environment
+        env:
+          BUILD_ID: ${{ github.run_number }}
         run: |
           BUILD_DATE=$(date +%Y%m%d-%H%M%S)
-          BUILD_DIR="$HOME/CICD/actions-runner/builds/$(date +%Y)/$(date +%m)/$(date +%d)/${BUILD_DATE}-${{ github.run_number }}"
+          BUILD_DIR="$HOME/CICD/actions-runner/builds/$(date +%Y)/$(date +%m)/$(date +%d)/${BUILD_DATE}-$BUILD_ID"
           mkdir -p "$BUILD_DIR"
           echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
           echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
@@ -37,30 +39,41 @@ jobs:
           docker inspect python-ci-image:${IMAGE_TAG} > "$BUILD_DIR/image-info.json"
 
       - name: Save build metadata
+        env:
+          BUILD_ID: ${{ github.run_number }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          BRANCH: ${{ github.ref_name }}
+          TRIGGERED_BY: ${{ github.actor }}
+          REPOSITORY: ${{ github.repository }}
+          WORKFLOW: ${{ github.workflow }}
         run: |
           cat > "$BUILD_DIR/metadata.json" << EOF
           {
-            "build_id": "${{ github.run_number }}",
-            "commit_sha": "${{ github.sha }}",
-            "commit_message": "${{ github.event.head_commit.message }}",
-            "branch": "${{ github.ref_name }}",
-            "triggered_by": "${{ github.actor }}",
+            "build_id": "$BUILD_ID",
+            "commit_sha": "$COMMIT_SHA",
+            "commit_message": "$COMMIT_MESSAGE",
+            "branch": "$BRANCH",
+            "triggered_by": "$TRIGGERED_BY",
             "build_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "image_tag": "${IMAGE_TAG}",
-            "repository": "${{ github.repository }}",
-            "workflow": "${{ github.workflow }}"
+            "image_tag": "$IMAGE_TAG",
+            "repository": "$REPOSITORY",
+            "workflow": "$WORKFLOW"
           }
           EOF
 
       - name: Save build log
+        env:
+          BUILD_ID: ${{ github.run_number }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           # record build process
           {
             echo "=== Build Log ==="
-            echo "Build ID: ${{ github.run_number }}"
-            echo "Commit: ${{ github.sha }}"
+            echo "Build ID: $BUILD_ID"
+            echo "Commit: $COMMIT_SHA"
             echo "Date: $(date)"
-            echo "Image Tag: ${IMAGE_TAG}"
+            echo "Image Tag: $IMAGE_TAG"
             echo "Build Directory: $BUILD_DIR"
             echo ""
             echo "=== Docker Images ==="
