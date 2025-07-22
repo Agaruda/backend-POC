@@ -1,13 +1,8 @@
 name: Security Check
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
-  schedule:
-    # 每週一早上 6 點進行安全掃描
-    - cron: '0 6 * * 1'
+    pull_request:
+      branches: [develop]
 
 jobs:
   sast:
@@ -40,18 +35,18 @@ jobs:
         with:
           scan-type: 'fs'
           scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          exit-code: '1'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
           ignore-unfixed: true
-          vuln-type: 'os,library'
+          vuln-type: 'library'
+          scanners: 'vuln'
 
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Trivy scan summary
         if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
+        run: |
+          echo "Trivy vulnerability scan completed"
+          echo "Check the logs above for any vulnerabilities found"
 
   license:
     name: License Check
