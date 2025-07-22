@@ -9,16 +9,90 @@ jobs:
   build-deploy-on-macmini:
     runs-on: self-hosted
     env:
-      IMAGE_TAG: ci-${{ github.run_number }}
+      BUILD_DATE: $(date +%Y%m%d-%H%M%S)
+      IMAGE_TAG: ci-${BUILD_DATE}-${{ github.run_number }}-${{ github.sha }}
+      BUILD_ID: ${{ github.run_number }}-${{ github.sha }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build image
-        run: docker build -t python-ci-image:${IMAGE_TAG} -f Dockerfile .
-
-      - name: Deploy (compose rolling restart)
+      - name: Prepare build environment
+        env:
+          BUILD_ID: ${{ github.run_number }}
         run: |
-          export IMAGE_TAG=${IMAGE_TAG}
-          docker compose -f docker-compose.ci.yml up -d --force-recreate
+          BUILD_DATE=$(date +%Y%m%d-%H%M%S)
+          BUILD_DIR="$HOME/CICD/actions-runner/builds/$(date +%Y)/$(date +%m)/$(date +%d)/${BUILD_DATE}-$BUILD_ID"
+          mkdir -p "$BUILD_DIR"
+          echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
+          echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
+
+      - name: Build and save image
+        run: |
+          # build image
+          docker build -t python-ci-image:${IMAGE_TAG} -f Dockerfile .
+          
+          # save image to tar file
+          docker save python-ci-image:${IMAGE_TAG} | gzip > "$BUILD_DIR/image.tar.gz"
+          
+          # save image info
+          docker inspect python-ci-image:${IMAGE_TAG} > "$BUILD_DIR/image-info.json"
+
+      - name: Save build metadata
+        env:
+          BUILD_ID: ${{ github.run_number }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          BRANCH: ${{ github.ref_name }}
+          TRIGGERED_BY: ${{ github.actor }}
+          REPOSITORY: ${{ github.repository }}
+          WORKFLOW: ${{ github.workflow }}
+        run: |
+          cat > "$BUILD_DIR/metadata.json" << EOF
+          {
+            "build_id": "$BUILD_ID",
+            "commit_sha": "$COMMIT_SHA",
+            "commit_message": "$COMMIT_MESSAGE",
+            "branch": "$BRANCH",
+            "triggered_by": "$TRIGGERED_BY",
+            "build_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "image_tag": "$IMAGE_TAG",
+            "repository": "$REPOSITORY",
+            "workflow": "$WORKFLOW"
+          }
+          EOF
+
+      - name: Save build log
+        env:
+          BUILD_ID: ${{ github.run_number }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          # record build process
+          {
+            echo "=== Build Log ==="
+            echo "Build ID: $BUILD_ID"
+            echo "Commit: $COMMIT_SHA"
+            echo "Date: $(date)"
+            echo "Image Tag: $IMAGE_TAG"
+            echo "Build Directory: $BUILD_DIR"
+            echo ""
+            echo "=== Docker Images ==="
+            docker images | grep python-ci-image
+            echo ""
+            echo "=== Build Summary ==="
+            echo "Image saved to: $BUILD_DIR/image.tar.gz"
+            echo "Metadata saved to: $BUILD_DIR/metadata.json"
+          } > "$BUILD_DIR/build.log"
+
+      - name: Update latest symlink
+        run: |
+          ln -sf "$BUILD_DIR" "$HOME/CICD/actions-runner/builds/latest"
+          echo "Latest build: $BUILD_DIR"
+
+      - name: Cleanup old builds
+        run: |
+          # keep recent 30 days builds
+          find "$HOME/CICD/actions-runner/builds" -type d -name "*-*" -mtime +30 -exec rm -rf {} \; 2>/dev/null || true
+          
+          # clean old docker images (keep recent 10)
+          docker images python-ci-image --format "table {{.Tag}}" | tail -n +11 | xargs -r docker rmi || true
