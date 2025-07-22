@@ -16,6 +16,6 @@ jobs:
         with:
           pull-request-number: ${{ github.event.pull_request.number }}
           comment: |
-            PR to `main` is blocked by policy.
-            Please target your changes to the `dev` branch instead.
+            PR to main is blocked by policy.
+            Please target your changes to the develop branch instead.
           delete-branch: false
