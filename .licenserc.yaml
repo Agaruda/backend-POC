@@ -1,0 +1,35 @@
+# Licensee configuration file
+# This file configures how Licensee checks for license compatibility
+
+# License to check against
+license: MIT
+
+# Files to check for license headers
+license_header:
+  - "*.py"
+  - "*.js"
+  - "*.ts"
+  - "*.go"
+  - "*.rs"
+  - "*.java"
+  - "*.cpp"
+  - "*.c"
+  - "*.h"
+
+# Directories to exclude
+exclude:
+  - ".git"
+  - ".venv"
+  - "node_modules"
+  - "__pycache__"
+  - "build"
+  - "dist"
+  - ".pytest_cache"
+
+# License files to recognize
+license_files:
+  - "LICENSE"
+  - "LICENSE.txt"
+  - "LICENSE.md"
+  - "COPYING"
+  - "COPYING.txt" 
