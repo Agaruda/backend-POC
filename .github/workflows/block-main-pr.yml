@@ -1,0 +1,24 @@
+name: Block PR to main
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, reopened, synchronize]
+
+jobs:
+  close-pr:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login != 'leoyao009' &&
+      github.event.pull_request.user.login != 'ycwu519'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Close pull request
+        uses: peter-evans/close-pull@v3
+        with:
+          pull-request-number: ${{ github.event.pull_request.number }}
+          comment: |
+            PR to main is blocked by policy.
+            Please target your changes to the develop branch instead.
+          delete-branch: false
