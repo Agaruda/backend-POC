@@ -8,6 +8,9 @@ on:
 jobs:
   close-pr:
     runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.user.login != 'leoyao009' &&
+      github.event.pull_request.user.login != 'ycwu519'
     steps:
       - uses: actions/checkout@v3
 
