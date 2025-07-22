@@ -9,8 +9,6 @@ jobs:
   build-deploy-on-macmini:
     runs-on: self-hosted
     env:
-      BUILD_DATE: $(date +%Y%m%d-%H%M%S)
-      IMAGE_TAG: ci-${BUILD_DATE}-${{ github.run_number }}-${{ github.sha }}
       BUILD_ID: ${{ github.run_number }}-${{ github.sha }}
 
     steps:
@@ -20,12 +18,15 @@ jobs:
       - name: Prepare build environment
         env:
           BUILD_ID: ${{ github.run_number }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           BUILD_DATE=$(date +%Y%m%d-%H%M%S)
+          IMAGE_TAG="ci-${BUILD_DATE}-$BUILD_ID-$COMMIT_SHA"
           BUILD_DIR="$HOME/CICD/actions-runner/builds/$(date +%Y)/$(date +%m)/$(date +%d)/${BUILD_DATE}-$BUILD_ID"
           mkdir -p "$BUILD_DIR"
           echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
           echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Build and save image
         run: |
@@ -63,9 +64,6 @@ jobs:
           EOF
 
       - name: Save build log
-        env:
-          BUILD_ID: ${{ github.run_number }}
-          COMMIT_SHA: ${{ github.sha }}
         run: |
           # record build process
           {
