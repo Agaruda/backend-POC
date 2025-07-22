@@ -1,13 +1,8 @@
 name: Security Check
 
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
-  schedule:
-    # 每週一早上 6 點進行安全掃描
-    - cron: '0 6 * * 1'
+    pull_request:
+      branches: [develop]
 
 jobs:
   sast:
