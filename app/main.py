@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-app = FastAPI(title="Agaruda Backend", version="1.0.0")
+app = FastAPI(title="Agaruda Backend")
 
 
 @app.get("/")
