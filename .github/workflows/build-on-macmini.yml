@@ -1,0 +1,24 @@
+name: Build & Deploy on Mac Mini
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: 
+
+jobs:
+  build-deploy-on-macmini:
+    runs-on: self-hosted
+    env:
+      IMAGE_TAG: ci-${{ github.run_number }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t python-ci-image:${IMAGE_TAG} -f Dockerfile .
+
+      - name: Deploy (compose rolling restart)
+        run: |
+          export IMAGE_TAG=${IMAGE_TAG}
+          docker compose -f docker-compose.ci.yml up -d --force-recreate
