@@ -1,86 +1,86 @@
 # Local CI Scripts
 
-這個目錄包含了本地端 CI 檢查腳本，讓開發者可以在發送 PR 前先進行程式碼品質檢查。
+This directory contains local CI check scripts that allow developers to perform code quality checks before submitting PRs.
 
-## 檔案說明
+## File Descriptions
 
-### `local-ci.sh` - 主要 CI 腳本
-完整的本地端 CI 檢查腳本，包含：
-- 環境檢查
-- 程式碼品質檢查 (Black, Flake8, Ruff, Mypy)
-- 建置檢查 (Dockerfile, Docker build, App startup)
-- 安全性檢查 (Semgrep, Trivy, License)
+### `local-ci.sh` - Main CI Script
+Complete local CI check script that includes:
+- Environment setup
+- Code quality checks (Black, Flake8, Ruff, Mypy)
+- Build checks (Dockerfile, Docker build, App startup)
+- Security checks (Semgrep, Trivy, License)
 
-### `install-tools.sh` - 工具安裝腳本
-自動安裝所有必要的開發工具：
+### `install-tools.sh` - Tool Installation Script
+Automatically installs all necessary development tools:
 - Python 3.11+
-- uv 套件管理器
+- uv package manager
 - Docker
-- hadolint (Dockerfile 檢查)
-- semgrep (安全掃描)
-- trivy (漏洞掃描)
+- hadolint (Dockerfile linting)
+- semgrep (security scanning)
+- trivy (vulnerability scanning)
 
-### `format.sh` - 快速格式化腳本
-快速格式化程式碼的簡化腳本。
+### `format.sh` - Quick Formatting Script
+Simplified script for quick code formatting.
 
-## 使用方式
+## Usage
 
-### 1. 首次設定
+### 1. Initial Setup
 
 ```bash
-# 安裝所有必要工具
+# Install all necessary tools
 ./scripts/install-tools.sh
 
-# 或手動安裝 uv
+# Or install uv manually
 curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="$HOME/.cargo/bin:$PATH"
 ```
 
-### 2. 執行完整檢查
+### 2. Run Complete Checks
 
 ```bash
-# 執行所有檢查
+# Run all checks
 ./scripts/local-ci.sh
 
-# 或使用 uv 腳本
+# Or use uv script
 uv run check
 ```
 
-### 3. 執行特定檢查
+### 3. Run Specific Checks
 
 ```bash
-# 只執行格式化檢查
+# Run formatting checks only
 ./scripts/local-ci.sh --format-only
 
-# 只執行 linting 檢查
+# Run linting checks only
 ./scripts/local-ci.sh --lint-only
 
-# 只執行安全性檢查
+# Run security checks only
 ./scripts/local-ci.sh --security-only
 
-# 只執行建置檢查
+# Run build checks only
 ./scripts/local-ci.sh --build-only
 ```
 
-### 4. 自動修復
+### 4. Auto-fix Issues
 
 ```bash
-# 自動修復格式化問題
+# Auto-fix formatting issues
 ./scripts/local-ci.sh --auto-fix
 
-# 或使用快速格式化腳本
+# Or use quick formatting script
 ./scripts/format.sh
 ```
 
-### 5. 查看幫助
+### 5. View Help
 
 ```bash
 ./scripts/local-ci.sh --help
 ```
 
-## 整合到開發流程
+## Integration with Development Workflow
 
-### 在 pyproject.toml 中設定腳本
+### Setting up scripts in pyproject.toml
 
 ```toml
 [tool.uv.scripts]
@@ -89,43 +89,43 @@ format = "bash scripts/format.sh"
 install-tools = "bash scripts/install-tools.sh"
 ```
 
-### 使用 uv 執行
+### Using uv to run scripts
 
 ```bash
-uv run check      # 執行完整檢查
-uv run format     # 格式化程式碼
-uv run install-tools  # 安裝工具
+uv run check      # Run complete checks
+uv run format     # Format code
+uv run install-tools  # Install tools
 ```
 
-### Git Hooks 整合
+### Git Hooks Integration
 
-可以設定 pre-commit hook 自動執行檢查：
+You can set up pre-commit hooks to automatically run checks:
 
 ```bash
-# 在 .git/hooks/pre-commit 中
+# In .git/hooks/pre-commit
 #!/bin/bash
 ./scripts/local-ci.sh --format-only
 ```
 
-## 檢查項目
+## Check Items
 
-### 程式碼品質檢查
-- **Black**: 程式碼格式化檢查
-- **Flake8**: 程式碼風格和潛在問題檢查
-- **Ruff**: 快速程式碼檢查
-- **Mypy**: 型別安全性檢查 (非阻塞)
+### Code Quality Checks
+- **Black**: Code formatting check
+- **Flake8**: Code style and potential issues check
+- **Ruff**: Fast code checking
+- **Mypy**: Type safety checking (non-blocking)
 
-### 建置檢查
-- **Dockerfile**: 使用 hadolint 檢查 Dockerfile
-- **Docker Build**: 測試 Docker 映像建置
-- **App Startup**: 測試 FastAPI 應用程式啟動
+### Build Checks
+- **Dockerfile**: Use hadolint to check Dockerfile
+- **Docker Build**: Test Docker image build
+- **App Startup**: Test FastAPI application startup
 
-### 安全性檢查
-- **Semgrep**: 靜態應用程式安全測試
-- **Trivy**: 依賴套件漏洞掃描
-- **License**: 授權檔案檢查
+### Security Checks
+- **Semgrep**: Static application security testing
+- **Trivy**: Dependency vulnerability scanning
+- **License**: License file check
 
-## 輸出範例
+## Output Example
 
 ```
 🔍 Running Local CI Checks...
@@ -163,40 +163,40 @@ Warnings: 0
 ✅ All critical checks passed! 🎉
 ```
 
-## 故障排除
+## Troubleshooting
 
-### 常見問題
+### Common Issues
 
-1. **uv 未找到**
+1. **uv not found**
    ```bash
    curl -LsSf https://astral.sh/uv/install.sh | sh
    export PATH="$HOME/.cargo/bin:$PATH"
    ```
 
-2. **Docker 未運行**
-   - macOS: 啟動 Docker Desktop
+2. **Docker not running**
+   - macOS: Start Docker Desktop
    - Linux: `sudo systemctl start docker`
 
-3. **權限問題**
+3. **Permission issues**
    ```bash
    chmod +x scripts/*.sh
    ```
 
-4. **工具未安裝**
+4. **Tools not installed**
    ```bash
    ./scripts/install-tools.sh
    ```
 
-### 日誌檔案
+### Log Files
 
-檢查結果會記錄在 `.local-ci.log` 檔案中，可以查看詳細的執行日誌。
+Check results are logged in the `.local-ci.log` file, where you can view detailed execution logs.
 
-## 自訂設定
+## Custom Configuration
 
-可以建立 `.local-ci-config.yaml` 檔案來自訂檢查設定：
+You can create a `.local-ci-config.yaml` file to customize check settings:
 
 ```yaml
-# 範例配置檔案
+# Example configuration file
 checks:
   quality:
     black:
