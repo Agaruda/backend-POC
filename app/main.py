@@ -10,7 +10,7 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy v2"}
 
 
 @app.get("/test")
