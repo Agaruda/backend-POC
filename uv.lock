@@ -535,7 +535,7 @@ dependencies = [
     { name = "uvicorn", extra = ["standard"] },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
     { name = "black" },
     { name = "flake8" },
@@ -545,14 +545,17 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "black", marker = "extra == 'dev'", specifier = ">=23.0.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.116.1" },
-    { name = "flake8", marker = "extra == 'dev'", specifier = ">=6.0.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.17.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12.4" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.35.0" },
 ]
-provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "black", specifier = ">=25.1.0" },
+    { name = "flake8", specifier = ">=7.3.0" },
+    { name = "mypy", specifier = ">=1.17.0" },
+    { name = "ruff", specifier = ">=0.12.4" },
+]
 
 [[package]]
 name = "python-dotenv"
