@@ -5,7 +5,7 @@ app = FastAPI(title="Agaruda Backend", version="1.0.0")
 
 @app.get("/")
 async def root():
-    return {"message": "Hello from Agaruda Backend!"}
+    return {"message": "Hello from Agaruda Backend! v6"}
 
 
 @app.get("/health")
